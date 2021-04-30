@@ -1,0 +1,19 @@
+on: [push]
+
+jobs:
+  sequence_and_integrate_job:
+    runs-on: ubuntu-latest
+    name: Sequence and integrate pending log entries
+    steps:
+    - uses: actions/checkout@v2
+    - name: Sequence and integrate step
+      id: sequence_and_integrate
+      uses: AlCutter/trillian-examples/serverless/deploy/github/sequence_and_integrate@serverless_actions_at_a_distance
+      with:
+        log_dir: './log'
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_user_name: Serverless Bot
+        commit_user_email: actions@github.com
+        commit_author: Serverless Bot <actions@github.com>
+        commit_message: Automatically sequence and integrate log
