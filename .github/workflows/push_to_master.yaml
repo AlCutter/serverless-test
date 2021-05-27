@@ -14,6 +14,9 @@ jobs:
       uses: google/trillian-examples/serverless/deploy/github/sequence_and_integrate@HEAD
       with:
         log_dir: './log'
+      env:
+        SERVERLESS_LOG_PRIVATE_KEY: ${{ secrets.SERVERLESS_LOG_PRIVATE_KEY }}
+        SERVERLESS_LOG_PUBLIC_KEY: ${{ secrets.SERVERLESS_LOG_PUBLIC_KEY }}
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_user_name: Serverless Bot
