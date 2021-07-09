@@ -1,0 +1,36 @@
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  leaf_validator_job:
+    runs-on: ubuntu-latest
+    name: Handle witness PR
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        path: 'pr'
+        fetch-depth: 0
+    - uses: actions/checkout@v2
+      with:
+        path: 'pristine'
+        ref: 'master'
+        fetch-depth: 0
+    - name: Validate and combine
+      id: validate_combine
+      uses: AlCutter/trillian-examples/serverless/deploy/github/witness_pr@serverless_recipe_witness_pr
+      with:
+        log_dir: './log'
+        pr_repo_root: 'pr'
+        pristine_repo_root: 'pristine'
+        witness_key_files: 'witnesskeys/*pub'
+        log_public_key: ${{ secrets.SERVERLESS_LOG_PUBLIC_KEY }}
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        repository: 'pr'
+        commit_user_name: Serverless Bot
+        commit_user_email: actions@github.com
+        commit_author: Serverless Bot <actions@github.com>
+        commit_message: Witness checkpoint merge
+
