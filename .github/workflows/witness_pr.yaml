@@ -19,7 +19,7 @@ jobs:
         fetch-depth: 0
     - name: Validate and combine
       id: validate_combine
-      uses: AlCutter/trillian-examples/serverless/deploy/github/witness_pr@serverless_recipe_witness_pr
+      uses: google/trillian-examples/serverless/deploy/github/witness_pr@master
       with:
         log_dir: './log'
         pr_repo_root: 'pr'
