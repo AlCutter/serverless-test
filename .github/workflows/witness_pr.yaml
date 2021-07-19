@@ -25,7 +25,7 @@ jobs:
         pr_repo_root: 'pr'
         pristine_repo_root: 'pristine'
         witness_key_files: 'witnesskeys/*pub'
-        log_public_key: ${{ secrets.SERVERLESS_LOG_PUBLIC_KEY }}
+        log_public_key: 'github.com/AlCutter/serverless-test/log+28035191+AVtQ/9lW+g90rQY3+pODJvMQ8X/tTvh/EuvCDLSmUk4S'
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         repository: 'pr'
