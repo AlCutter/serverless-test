@@ -9,29 +9,11 @@ jobs:
     name: Handle witness PR
     steps:
     - uses: actions/checkout@v2
-      with:
-        path: 'pr'
-        ref: ${{github.event.pull_request.head.ref}}
-        repository: ${{github.event.pull_request.head.repo.full_name}}
-    - uses: actions/checkout@v2
-      with:
-        path: 'pristine'
-        ref: 'master'
-        fetch-depth: 0
-    - name: Validate and combine
-      id: validate_combine
-      uses: AlCutter/trillian-examples/serverless/deploy/github/witness_pr@fettle_witness_pr_action
+    - name: Validate witness PR
+      id: validate_witness_pr
+      uses: AlCutter/trillian-examples/serverless/deploy/github/witness_pr@serverless_witness_split_brainz
       with:
         log_dir: './log'
-        pr_repo_root: 'pr'
-        pristine_repo_root: 'pristine'
         witness_key_files: 'witnesskeys/*pub'
         log_public_key: 'github.com/AlCutter/serverless-test/log+28035191+AVtQ/9lW+g90rQY3+pODJvMQ8X/tTvh/EuvCDLSmUk4S'
-    - uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        repository: 'pr'
-        commit_user_name: Serverless Bot
-        commit_user_email: actions@github.com
-        commit_author: Serverless Bot <actions@github.com>
-        commit_message: Witness checkpoint merge
 
