@@ -12,7 +12,7 @@ jobs:
     # Attempt to combine witness signatures with the log checkpoint.
     - name: Combine witness signatures
       id: combine_witness_signatures
-      uses: AlCutter/trillian-examples/serverless/deploy/github/combine_witness_signatures@serverless_witness_split_brainz
+      uses: google/trillian-examples/serverless/deploy/github/combine_witness_signatures@master
       with:
           log_dir: './log'
           witness_key_files: 'witnesskeys/*pub'

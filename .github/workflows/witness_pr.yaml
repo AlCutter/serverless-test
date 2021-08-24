@@ -13,7 +13,7 @@ jobs:
         fetch-depth: 0
     - name: Validate witness PR
       id: validate_witness_pr
-      uses: AlCutter/trillian-examples/serverless/deploy/github/witness_pr@serverless_witness_split_brainz
+      uses: google/trillian-examples/serverless/deploy/github/witness_pr@master
       with:
         log_dir: './log'
         witness_key_files: 'witnesskeys/*pub'
