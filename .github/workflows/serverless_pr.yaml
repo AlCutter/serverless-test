@@ -15,6 +15,7 @@ jobs:
       # Add extra outputs here to match any additions to the matched patterns in the filter step below.
       log: ${{ steps.filter.outputs.log }}
       pending: ${{ steps.filter.outputs.pending }}
+      witness: ${{ steps.filter.outputs.witness }}
     steps:
       - name: Check for log structure PRs
         id: filter
@@ -26,18 +27,28 @@ jobs:
               - '${{ env.LOG_ROOT }}/**'
             pending:
               - added: '${{ env.LOG_ROOT }}/leaves/pending/*'
+            witness:
+              - added: '${{ env.LOG_ROOT }}/witness/*'
 
       - name: Detect log structure changes
-        if: steps.filter.outputs.log == 'true' && steps.filter.outputs.pending == 'false'
+        if: steps.filter.outputs.log == 'true' && steps.filter.outputs.pending == 'false' && steps.filter.outputs.witness == 'false'
         run: |
           for i in ${{ steps.filter.outputs.log_files }}; do
-            echo "::error file=${i}::Modified protected log structure - ensure additions are placed in the ${{ env.LOG_ROOT }}/leaves/pending directory"
+            echo "::error file=${i}::Modified protected log structure"
+          done
+          exit 1
+
+      - name: Detect combined PRs
+        if: steps.filter.outputs.pending == 'false' && steps.filter.outputs.witness == 'false'
+        run: |
+          for i in ${{ steps.filter.outputs.log_files }}; do
+            echo "::error file=${i}::PR contains new leaves and witnessed checkpoints, please split into multiple PRs"
           done
           exit 1
 
 
 # Run this job only when we've detected pending leaf additions
-  leaf_validator_job:
+  leaf_validator:
     needs: changes
     if: ${{ needs.changes.outputs.pending == 'true' }}
     runs-on: ubuntu-latest
@@ -54,4 +65,26 @@ jobs:
         uses: google/trillian-examples/serverless/deploy/github/leaf_validator@HEAD
         with:
           log_dir: '${{ env.LOG_ROOT }}'
+
+# Run this job only when we've detected a witnessed checkpoint
+  witness_validator:
+    needs: changes
+    if: ${{ needs.changes.outputs.witness == 'true' }}
+    runs-on: ubuntu-latest
+    name: Handle witness PR
+    steps:
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: Witness
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Validate witness PR
+        id: validate_witness_pr
+        uses: google/trillian-examples/serverless/deploy/github/witness_pr@HEAD
+        with:
+          log_dir: '${{ env.LOG_ROOT }}'
+          witness_key_files: 'witnesskeys/*pub'
+          log_public_key: 'github.com/AlCutter/serverless-test/log+28035191+AVtQ/9lW+g90rQY3+pODJvMQ8X/tTvh/EuvCDLSmUk4S'
+
 
