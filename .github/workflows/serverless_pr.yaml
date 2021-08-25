@@ -1,0 +1,57 @@
+name: Serverless PR
+on:
+  pull_request:
+    branches:
+      - master
+
+env:
+  LOG_ROOT: "log"
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    name: Serverless PR handler
+    outputs:
+      # Add extra outputs here to match any additions to the matched patterns in the filter step below.
+      log: ${{ steps.filter.outputs.log }}
+      pending: ${{ steps.filter.outputs.pending }}
+    steps:
+      - name: Check for log structure PRs
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          list-files: shell
+          filters: |
+            log:
+              - '${{ env.LOG_ROOT }}/**'
+            pending:
+              - added: '${{ env.LOG_ROOT }}/leaves/pending/*'
+
+      - name: Detect log structure changes
+        if: steps.filter.outputs.log == 'true' && steps.filter.outputs.pending == 'false'
+        run: |
+          for i in ${{ steps.filter.outputs.log_files }}; do
+            echo "::error file=${i}::Modified protected log structure - ensure additions are placed in the ${{ env.LOG_ROOT }}/leaves/pending directory"
+          done
+          exit 1
+
+
+# Run this job only when we've detected pending leaf additions
+  leaf_validator_job:
+    needs: changes
+    if: ${{ needs.changes.outputs.pending == 'true' }}
+    runs-on: ubuntu-latest
+    name: Validate pending leaves
+    steps:
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: Add Leaf
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Leaf validator step
+        id: leaf_validator
+        uses: google/trillian-examples/serverless/deploy/github/leaf_validator@HEAD
+        with:
+          log_dir: '${{ env.LOG_ROOT }}'
+
