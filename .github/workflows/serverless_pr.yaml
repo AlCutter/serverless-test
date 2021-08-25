@@ -8,8 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Serverless PR handler
     steps:
-      - uses: actions/checkout@v2
-
       - name: Check for log structure PRs
         id: changes
         uses: dorny/paths-filter@v2
@@ -23,10 +21,21 @@ jobs:
       - name: Detect log structure changes
         if: steps.changes.outputs.log == 'true' && steps.changes.outputs.pending == 'false'
         run: |
-          echo "::error:PR modifies log structure"
+          echo "::error:PR modifies protected log structure - ensure additions are placed in the .../leaves/pending directory"
 
-      - name: Handle leaf PR
-        if: steps.changes.outputs.pending == 'true'
-        run: |
-          echo "::warning:Will handle leaf PR"
+# Run this job only when we've detected pending leaf additions
+  leaf_validator_job:
+    needs: changes
+    if: ${{ needs.changes.outputs.pending == 'true' }}
+    runs-on: ubuntu-latest
+    name: Validate pending leaves
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Leaf validator step
+      id: leaf_validator
+      uses: google/trillian-examples/serverless/deploy/github/leaf_validator@HEAD
+      with:
+        log_dir: './log'
 
