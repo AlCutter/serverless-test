@@ -60,6 +60,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          ref: ${{ github.head_ref }}
       - name: Leaf validator step
         id: leaf_validator
         uses: google/trillian-examples/serverless/deploy/github/leaf_validator@HEAD
@@ -78,6 +79,7 @@ jobs:
           labels: Witness
       - uses: actions/checkout@v2
         with:
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
       - name: Validate witness PR
         id: validate_witness_pr
