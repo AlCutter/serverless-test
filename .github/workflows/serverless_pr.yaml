@@ -1,7 +1,11 @@
+name: Serverless PR
 on:
   pull_request:
     branches:
       - master
+
+env:
+  LOG_ROOT: "log"
 
 jobs:
   changes:
@@ -19,15 +23,15 @@ jobs:
           list-files: shell
           filters: |
             log:
-              - 'log/**'
+              - '${{ env.LOG_ROOT }/**'
             pending:
-              - added: 'log/leaves/pending/*'
+              - added: '${{ env.LOG_ROOT }}/leaves/pending/*'
 
       - name: Detect log structure changes
         if: steps.filter.outputs.log == 'true' && steps.filter.outputs.pending == 'false'
         run: |
           for i in ${{ steps.filter.outputs.log_files }}; do
-            echo "::error file=${i}::Modified protected log structure - ensure additions are placed in the .../leaves/pending directory"
+            echo "::error file=${i}::Modified protected log structure - ensure additions are placed in the ${{ env.LOG_ROOT }}/leaves/pending directory"
           done
           exit 1
 
@@ -45,5 +49,5 @@ jobs:
       id: leaf_validator
       uses: google/trillian-examples/serverless/deploy/github/leaf_validator@HEAD
       with:
-        log_dir: './log'
+        log_dir: '${{ env.LOG_ROOT }}'
 
