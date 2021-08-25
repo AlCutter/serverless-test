@@ -7,7 +7,10 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     name: Serverless PR handler
-    outputs: ${{ steps.filter.outputs }}
+    outputs:
+      # Add extra outputs here to match any additions to the matched patterns in the filter step below.
+      log: ${{ steps.filter.outputs.log }}
+      pending: ${{ steps.filter.outputs.pending }}
     steps:
       - name: Check for log structure PRs
         id: filter
