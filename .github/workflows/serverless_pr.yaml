@@ -4,12 +4,13 @@ on:
       - master
 
 jobs:
-  serverless_pr:
+  changes:
     runs-on: ubuntu-latest
     name: Serverless PR handler
+    outputs: ${{ steps.filter.outputs }}
     steps:
       - name: Check for log structure PRs
-        id: changes
+        id: filter
         uses: dorny/paths-filter@v2
         with:
           filters: |
@@ -19,7 +20,7 @@ jobs:
               - added: 'log/leaves/pending/*'
 
       - name: Detect log structure changes
-        if: steps.changes.outputs.log == 'true' && steps.changes.outputs.pending == 'false'
+        if: steps.filter.outputs.log == 'true' && steps.filter.outputs.pending == 'false'
         run: |
           echo "::error:PR modifies protected log structure - ensure additions are placed in the .../leaves/pending directory"
 
