@@ -9,18 +9,22 @@ jobs:
     name: Serverless PR handler
     steps:
       - uses: actions/checkout@v2
+
       - name: Check for log structure PRs
         id: changes
         uses: dorny/paths-filter@v2
         with:
-          log:
-            - ^log/**
-          pending:
-            - added: ^log/leaves/pending/*$
+          filters: |
+            log:
+              - '^log/**'
+            pending:
+              - added: '^log/leaves/pending/*$'
+
       - name: Detect log structure changes
         if: steps.changes.outputs.log == 'true' && steps.changes.outputs.pending == 'false'
         run: |
           echo "::error:PR modifies log structure"
+
       - name: Handle leaf PR
         if: steps.changes.outputs.pending == 'true'
         run: |
