@@ -27,7 +27,7 @@ jobs:
         if: steps.filter.outputs.log == 'true' && steps.filter.outputs.pending == 'false'
         run: |
           for i in ${{ steps.filter.outputs.log_files }}; do
-                  echo "::error: file=${i} Modified protected log structure - ensure additions are placed in the .../leaves/pending directory"
+            echo "::error file=${i}::Modified protected log structure - ensure additions are placed in the .../leaves/pending directory"
           done
           exit 1
 
