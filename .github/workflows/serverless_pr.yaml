@@ -16,9 +16,9 @@ jobs:
         with:
           filters: |
             log:
-              - '^log/**'
+              - 'log/**'
             pending:
-              - added: '^log/leaves/pending/*$'
+              - added: 'log/leaves/pending/*'
 
       - name: Detect log structure changes
         if: steps.changes.outputs.log == 'true' && steps.changes.outputs.pending == 'false'
