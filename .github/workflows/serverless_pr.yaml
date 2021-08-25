@@ -23,7 +23,7 @@ jobs:
           list-files: shell
           filters: |
             log:
-              - '${{ env.LOG_ROOT }/**'
+              - '${{ env.LOG_ROOT }}/**'
             pending:
               - added: '${{ env.LOG_ROOT }}/leaves/pending/*'
 
