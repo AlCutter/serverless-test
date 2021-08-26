@@ -63,7 +63,7 @@ jobs:
           ref: "refs/pull/${{ github.event.number }}/merge"
       - name: Leaf validator step
         id: leaf_validator
-        uses: google/trillian-examples/serverless/deploy/github/leaf_validator@HEAD
+        uses: google/trillian-examples/serverless/deploy/github/log/leaf_validator@HEAD
         with:
           log_dir: '${{ env.LOG_ROOT }}'
 
@@ -83,7 +83,7 @@ jobs:
           ref: "refs/pull/${{ github.event.number }}/merge"
       - name: Validate witness PR
         id: validate_witness_pr
-        uses: google/trillian-examples/serverless/deploy/github/witness_pr@HEAD
+        uses: google/trillian-examples/serverless/deploy/github/distributor/witness_pr@HEAD
         with:
           log_dir: '${{ env.LOG_ROOT }}'
           witness_key_files: 'witnesskeys/*pub'
