@@ -40,9 +40,9 @@ jobs:
           exit 1
 
       - name: Detect combined PRs
-        if: steps.filter.outputs.pending == 'false' && steps.filter.outputs.distributor == 'false'
+        if: steps.filter.outputs.pending == 'true' && steps.filter.outputs.distributor == 'true'
         run: |
-          for i in ${{ steps.filter.outputs.log_files }}; do
+          for i in ${{ steps.filter.outputs.log_files }} ${{ steps.filter.outputs.distributor_files }}; do
             echo "::error file=${i}::PR contains new leaves and witnessed checkpoints, please split into multiple PRs"
           done
           exit 1
