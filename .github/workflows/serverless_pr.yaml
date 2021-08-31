@@ -84,7 +84,7 @@ jobs:
           ref: "refs/pull/${{ github.event.number }}/merge"
       - name: Combine witness signatures (dry run)
         id: combine_witness_signatures_dry_run
-        uses: AlCutter/trillian-examples/serverless/deploy/github/distributor/combine_witness_signatures@serverless_distributor
+        uses: google/trillian-examples/serverless/deploy/github/distributor/combine_witness_signatures@HEAD
         with:
             distributor_dir: './distributor'
             config: './distributor/config.json'
