@@ -14,9 +14,9 @@ jobs:
     name: Serverless PR handler
     outputs:
       # Add extra outputs here to match any additions to the matched patterns in the filter step below.
+      distributor: ${{ steps.filter.outputs.distributor }}
       log: ${{ steps.filter.outputs.log }}
       pending: ${{ steps.filter.outputs.pending }}
-      witness: ${{ steps.filter.outputs.witness }}
     steps:
       - name: Check for log structure PRs
         id: filter
@@ -24,12 +24,12 @@ jobs:
         with:
           list-files: shell
           filters: |
+            distributor:
+              - added: '${{ env.DISTRIBUTOR_ROOT }}/logs/**'
             log:
               - '${{ env.LOG_ROOT }}/**'
             pending:
               - added: '${{ env.LOG_ROOT }}/leaves/pending/*'
-            distributor:
-              - added: '${{ env.DISTRIBUTOR_ROOT }}/logs/**'
 
       - name: Detect log structure changes
         if: steps.filter.outputs.log == 'true' && steps.filter.outputs.pending == 'false'
