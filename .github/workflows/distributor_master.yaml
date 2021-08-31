@@ -12,12 +12,10 @@ jobs:
     # Attempt to combine witness signatures with the log checkpoint.
     - name: Combine witness signatures
       id: combine_witness_signatures
-      uses: google/trillian-examples/serverless/deploy/github/distributor/combine_witness_signatures@master
+      uses: AlCutter/trillian-examples/serverless/deploy/github/distributor/combine_witness_signatures@serverless_distributor
       with:
-          log_dir: './log'
-          witness_key_files: 'witnesskeys/*pub'
-          log_public_key: 'github.com/AlCutter/serverless-test/log+28035191+AVtQ/9lW+g90rQY3+pODJvMQ8X/tTvh/EuvCDLSmUk4S'
-          required_witness_signatures: 1
+          distributor_dir: './distributor'
+          config: './distributor/config.json'
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_user_name: Serverless Bot
