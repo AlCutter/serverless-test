@@ -6,6 +6,7 @@ on:
 
 env:
   LOG_ROOT: "log"
+  DISTRIBUTOR_ROOT: "distributor"
 
 jobs:
   changes:
@@ -27,11 +28,11 @@ jobs:
               - '${{ env.LOG_ROOT }}/**'
             pending:
               - added: '${{ env.LOG_ROOT }}/leaves/pending/*'
-            witness:
-              - added: '${{ env.LOG_ROOT }}/witness/*'
+            distributor:
+              - added: '${{ env.DISTRIBUTOR_ROOT }}/logs/*'
 
       - name: Detect log structure changes
-        if: steps.filter.outputs.log == 'true' && steps.filter.outputs.pending == 'false' && steps.filter.outputs.witness == 'false'
+        if: steps.filter.outputs.log == 'true' && steps.filter.outputs.pending == 'false'
         run: |
           for i in ${{ steps.filter.outputs.log_files }}; do
             echo "::error file=${i}::Modified protected log structure"
@@ -39,7 +40,7 @@ jobs:
           exit 1
 
       - name: Detect combined PRs
-        if: steps.filter.outputs.pending == 'false' && steps.filter.outputs.witness == 'false'
+        if: steps.filter.outputs.pending == 'false' && steps.filter.outputs.distributor == 'false'
         run: |
           for i in ${{ steps.filter.outputs.log_files }}; do
             echo "::error file=${i}::PR contains new leaves and witnessed checkpoints, please split into multiple PRs"
@@ -67,12 +68,12 @@ jobs:
         with:
           log_dir: '${{ env.LOG_ROOT }}'
 
-# Run this job only when we've detected a witnessed checkpoint
-  witness_validator:
+# Run this job only when we've detected a distributor checkpoint PR
+  distributor_validator:
     needs: changes
-    if: ${{ needs.changes.outputs.witness == 'true' }}
+    if: ${{ needs.changes.outputs.distributor == 'true' }}
     runs-on: ubuntu-latest
-    name: Handle witness PR
+    name: Handle distributor PR
     steps:
       - uses: actions-ecosystem/action-add-labels@v1
         with:
@@ -81,12 +82,10 @@ jobs:
         with:
           fetch-depth: 0
           ref: "refs/pull/${{ github.event.number }}/merge"
-      - name: Validate witness PR
-        id: validate_witness_pr
-        uses: google/trillian-examples/serverless/deploy/github/distributor/witness_pr@HEAD
+      - name: Combine witness signatures (dry run)
+        id: combine_witness_signatures_dry_run
+        uses: AlCutter/trillian-examples/serverless/deploy/github/distributor/combine_witness_signatures@serverless_distributor
         with:
-          log_dir: '${{ env.LOG_ROOT }}'
-          witness_key_files: 'witnesskeys/*pub'
-          log_public_key: 'github.com/AlCutter/serverless-test/log+28035191+AVtQ/9lW+g90rQY3+pODJvMQ8X/tTvh/EuvCDLSmUk4S'
-
-
+            distributor_dir: './distributor'
+            config: './distributor/config.json'
+            dry_run: true
