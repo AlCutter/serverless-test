@@ -15,7 +15,7 @@ jobs:
       uses: google/trillian-examples/serverless/deploy/github/distributor/combine_witness_signatures@HEAD
       with:
           distributor_dir: './distributor'
-          config: './distributor/config.json'
+          config: './distributor/config.yaml'
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_user_name: Serverless Bot

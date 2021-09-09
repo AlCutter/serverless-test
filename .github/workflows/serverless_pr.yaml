@@ -87,5 +87,5 @@ jobs:
         uses: google/trillian-examples/serverless/deploy/github/distributor/combine_witness_signatures@HEAD
         with:
             distributor_dir: './distributor'
-            config: './distributor/config.json'
+            config: './distributor/config.yaml'
             dry_run: true
