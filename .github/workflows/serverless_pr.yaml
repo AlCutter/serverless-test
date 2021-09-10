@@ -24,25 +24,37 @@ jobs:
         with:
           list-files: shell
           filters: |
-            distributor:
-              - added: '${{ env.DISTRIBUTOR_ROOT }}/logs/**'
-            log:
+            distributor_incoming: &distributor_incoming
+              - added: '${{ env.DISTRIBUTOR_ROOT }}/logs/*/incoming/*'
+            distributor_private:
+              - '${{ env.DISTRIBUTOR_ROOT }}/logs/**'
+              - !*distributor_incoming
+            log_private:
               - '${{ env.LOG_ROOT }}/**'
-            pending:
+              - !*log_pending
+            log_pending: &log_pending
               - added: '${{ env.LOG_ROOT }}/leaves/pending/*'
 
       - name: Detect log structure changes
-        if: steps.filter.outputs.log == 'true' && steps.filter.outputs.pending == 'false'
+        if: steps.filter.outputs.log_private == 'true'
         run: |
-          for i in ${{ steps.filter.outputs.log_files }}; do
+          for i in ${{ steps.filter.outputs.log_private_files }}; do
             echo "::error file=${i}::Modified protected log structure"
           done
           exit 1
 
-      - name: Detect combined PRs
-        if: steps.filter.outputs.pending == 'true' && steps.filter.outputs.distributor == 'true'
+      - name: Detect distributor structure changes
+        if: steps.filter.outputs.distributor_private == 'true'
         run: |
-          for i in ${{ steps.filter.outputs.log_files }} ${{ steps.filter.outputs.distributor_files }}; do
+          for i in ${{ steps.filter.outputs.distributor_private_files }}; do
+            echo "::error file=${i}::Modified protected distributor structure"
+          done
+          exit 1
+
+      - name: Detect combined PRs
+        if: steps.filter.outputs.log_pending == 'true' && steps.filter.outputs.distributor_incoming == 'true'
+        run: |
+          for i in ${{ steps.filter.outputs.log_pending_files }} ${{ steps.filter.outputs.distributor_pending_files }}; do
             echo "::error file=${i}::PR contains new leaves and witnessed checkpoints, please split into multiple PRs"
           done
           exit 1
@@ -51,7 +63,7 @@ jobs:
 # Run this job only when we've detected pending leaf additions
   leaf_validator:
     needs: changes
-    if: ${{ needs.changes.outputs.pending == 'true' }}
+    if: ${{ needs.changes.outputs.log_pending == 'true' }}
     runs-on: ubuntu-latest
     name: Validate pending leaves
     steps:
@@ -71,7 +83,7 @@ jobs:
 # Run this job only when we've detected a distributor checkpoint PR
   distributor_validator:
     needs: changes
-    if: ${{ needs.changes.outputs.distributor == 'true' }}
+    if: ${{ needs.changes.outputs.distributor_incoming == 'true' }}
     runs-on: ubuntu-latest
     name: Handle distributor PR
     steps:
