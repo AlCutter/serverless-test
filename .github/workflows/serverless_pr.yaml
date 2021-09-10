@@ -14,9 +14,8 @@ jobs:
     name: Serverless PR handler
     outputs:
       # Add extra outputs here to match any additions to the matched patterns in the filter step below.
-      distributor: ${{ steps.filter.outputs.distributor }}
-      log: ${{ steps.filter.outputs.log }}
-      pending: ${{ steps.filter.outputs.pending }}
+      distributor_incoming: ${{ steps.filter.outputs.distributor_incoming }}
+      log_pending: ${{ steps.filter.outputs.log_pending }}
     steps:
       - name: Check for log structure PRs
         id: filter
@@ -24,16 +23,14 @@ jobs:
         with:
           list-files: shell
           filters: |
-            distributor_incoming: &distributor_incoming
+            distributor_incoming:
               - added: '${{ env.DISTRIBUTOR_ROOT }}/logs/*/incoming/*'
             distributor_private:
-              - '${{ env.DISTRIBUTOR_ROOT }}/logs/**'
-              - !*distributor_incoming
-            log_private:
-              - '${{ env.LOG_ROOT }}/**'
-              - !*log_pending
-            log_pending: &log_pending
+              - '${{ env.DISTRIBUTOR_ROOT }}!(/logs/*/incoming/*)'
+            log_pending:
               - added: '${{ env.LOG_ROOT }}/leaves/pending/*'
+            log_private:
+              - '${{ env.LOG_ROOT }}/!(leaves/pending/*)'
 
       - name: Detect log structure changes
         if: steps.filter.outputs.log_private == 'true'
@@ -101,3 +98,15 @@ jobs:
             distributor_dir: './distributor'
             config: './distributor/config.yaml'
             dry_run: true
+      # Store PR number so we can update from a more priviledged workflow.
+      - id: save_metadata
+        name: Save PR number
+        run: |
+          D=$(mktemp -d)/pr_metadata
+          mkdir -p ${D}
+          echo ${{ github.event.number }} > ${D}/NR
+          echo "::set-output name=metadata_dir::${D}"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pr_metadata
+          path: ${{ steps.save_metadata.outputs.metadata_dir }}
