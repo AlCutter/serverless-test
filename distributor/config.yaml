@@ -12,4 +12,7 @@ Logs:
   - ID: armory-drive-log
     PublicKey: armory-drive-log+10146603+Af48wFx6DzAklbp4iZaMFGXoEBZxUwEMQMID4lovBq6X
     Origin: Armory Drive Prod 1
+  - ID: armory-drive-log-2
+    PublicKey: armory-drive-log+16541b8f+AYDPmG5pQp4Bgu0a1mr5uDZ196+t8lIVIfWQSPWmP+Jv
+    Origin: Armory Drive Prod 2
 
