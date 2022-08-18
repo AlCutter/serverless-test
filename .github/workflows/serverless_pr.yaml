@@ -44,13 +44,13 @@ jobs:
             #      - uses: actions-ecosystem/action-add-labels@v1
             #        with:
             #          labels: Add Leaf
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           ref: "refs/pull/${{ github.event.number }}/merge"
       - name: Leaf validator step
         id: leaf_validator
-        uses: google/trillian-examples/serverless/deploy/github/log/leaf_validator@HEAD
+        uses: AlCutter/trillian-examples/serverless/deploy/github/log/leaf_validator@fix_leaf_validator_action
         with:
           log_dir: '${{ env.LOG_ROOT }}'
 
